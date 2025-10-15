@@ -24,7 +24,7 @@ async def process_file(file: UploadFile = File(...), x_api_key: str = Header(...
     # Run inFACTS Studio (adjust path if needed)
     try:
         result = subprocess.run(
-            [r"C:\Program Files\Evoma AB\inFACTS Studio 140\inFACTS.exe", temp_path],
+            [r"C:\Program Files\Evoma AB\inFACTS Studio 140\inFACTS Studio.exe", temp_path],
             capture_output=True, text=True
         )
     except Exception as e:
