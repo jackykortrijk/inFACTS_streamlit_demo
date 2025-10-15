@@ -1,6 +1,16 @@
 import streamlit as st
 import requests
 
+# 隐藏 Streamlit 默认的菜单和页脚
+hide_streamlit_style = """
+    <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # 设置浏览器 Tab 的标题 和 图标
 st.set_page_config(
     page_title="Simulate Now",   # ✅ 改成你想要的标题
