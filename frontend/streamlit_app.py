@@ -9,14 +9,15 @@ st.set_page_config(
 )
 
 # 隐藏 Streamlit 默认的菜单和页脚
-hide_streamlit_style = """
+hide_streamlit_elements = """
     <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden;}      /* 右上角的三条杠菜单 */
+        header {visibility: hidden;}         /* 顶部 Streamlit 标志栏 */
+        footer {visibility: hidden;}         /* 底部 “Made with Streamlit” */
+        .stActionButton {visibility: hidden;}/* 右下角 Share 按钮 */
     </style>
 """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+st.markdown(hide_streamlit_elements, unsafe_allow_html=True)
 
 BACKEND_URL = st.secrets["BACKEND_URL"]
 API_KEY = st.secrets["API_KEY"]
