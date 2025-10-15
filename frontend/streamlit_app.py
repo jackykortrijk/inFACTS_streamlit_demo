@@ -38,3 +38,6 @@ if st.session_state.uploaded_file is None:
                 st.json(response.json())
             except Exception as e:
                 st.error(f"Error: {e}")
+else:
+    st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
+    st.info("🔒 File is locked. Refresh the page to upload a new one.")
