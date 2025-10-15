@@ -1,7 +1,14 @@
 import streamlit as st
 import requests
 
-st.title("Upload AML/XML for inFACTS Processing")
+st.title("Simulate Now")
+st.subheader("Import Configuration File")
+
+# Initialize session state
+if "uploaded_file" not in st.session_state:
+    st.session_state.uploaded_file = None
+    st.session_state.selected_extension = None
+    st.session_state.config_path = None
 
 uploaded_file = st.file_uploader("Upload your file")
 if uploaded_file:
