@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 
+BACKEND_URL = st.secrets["BACKEND_URL"]
+API_KEY = st.secrets["API_KEY"]
+
 st.title("Simulate Now")
 st.subheader("Import Configuration File")
 
@@ -23,11 +26,7 @@ if st.session_state.uploaded_file is None:
         st.write(f"Uploading: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
 
-        BACKEND_URL = st.secrets["BACKEND_URL"]
-        API_KEY = st.secrets["API_KEY"]
-
-        files = {"file": (uploaded_file.name, uploaded_file)}
-        headers = {"x-api-key": API_KEY}
+        
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
@@ -35,14 +34,16 @@ else:
 
 def run_script_with_progress():
     # Get backend URL & API key from Streamlit secrets
-        with st.spinner("Processing..."):
-            try:
-                response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers)
-                response.raise_for_status()
-                st.success("Processing complete!")
-                st.json(response.json())
-            except Exception as e:
-                st.error(f"Error: {e}")
+    files = {"file": (uploaded_file.name, uploaded_file)}  
+    headers = {"x-api-key": API_KEY}     
+    with st.spinner("Processing..."):
+        try:
+            response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers)
+            response.raise_for_status()
+            st.success("Processing complete!")
+            st.json(response.json())
+        except Exception as e:
+            st.error(f"Error: {e}")
 
 # -----------------------------
 # STEP 2: Dynamic Tabs
