@@ -9,12 +9,27 @@ st.set_page_config(
 )
 
 # 隐藏 Streamlit 默认的菜单和页脚
+# ---------------------------
+# 隐藏默认 Streamlit 元素
+# ---------------------------
 hide_streamlit_default = """
     <style>
-        #MainMenu {visibility: hidden;}              /* 隐藏右上角菜单 */
-        header {visibility: hidden;}                 /* 隐藏默认头部 */
-        footer {visibility: hidden;}                 /* 隐藏底部 Streamlit 标签 */
-        .viewerBadge_container__1QSob {display: none;}  /* 隐藏右下角 "Created by" */
+        /* 隐藏右上角菜单、默认头部和 footer */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+
+        /* 覆盖移动端右下角徽章 */
+        .viewerBadge_container__1QSob {
+            position: fixed !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: transparent !important;
+            pointer-events: none !important;
+            z-index: 9999 !important;
+        }
     </style>
 """
 st.markdown(hide_streamlit_default, unsafe_allow_html=True)
