@@ -1,6 +1,13 @@
 import streamlit as st
 import requests
 
+# 设置浏览器 Tab 的标题 和 图标
+st.set_page_config(
+    page_title="Simulate Now",   # ✅ 改成你想要的标题
+    page_icon="⚙️",              # ✅ 可以是 emoji 或 .ico/.png 文件路径
+    layout="wide"
+)
+
 BACKEND_URL = st.secrets["BACKEND_URL"]
 API_KEY = st.secrets["API_KEY"]
 
