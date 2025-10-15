@@ -26,7 +26,16 @@ if st.session_state.uploaded_file is None:
         st.write(f"Uploading: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
 
-        
+        files = {"file": (uploaded_file.name, uploaded_file)}  
+        headers = {"x-api-key": API_KEY}     
+        with st.spinner("Processing..."):
+            try:
+                response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers)
+                response.raise_for_status()
+                st.success("Processing complete!")
+                st.json(response.json())
+            except Exception as e:
+                st.error(f"Error: {e}") 
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
@@ -34,16 +43,7 @@ else:
 
 def run_script_with_progress():
     # Get backend URL & API key from Streamlit secrets
-    files = {"file": (uploaded_file.name, uploaded_file)}  
-    headers = {"x-api-key": API_KEY}     
-    with st.spinner("Processing..."):
-        try:
-            response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers)
-            response.raise_for_status()
-            st.success("Processing complete!")
-            st.json(response.json())
-        except Exception as e:
-            st.error(f"Error: {e}")
+    pass
 
 # -----------------------------
 # STEP 2: Dynamic Tabs
