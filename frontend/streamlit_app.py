@@ -14,21 +14,22 @@ st.set_page_config(
 # ---------------------------
 hide_streamlit_default = """
     <style>
-        /* 隐藏右上角菜单、默认头部和 footer */
+        /* 隐藏顶部菜单、默认页眉和底部 footer */
         #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility: hidden;}
 
-        /* 覆盖移动端右下角徽章 */
+        /* 创建一个覆盖层挡住右下角徽章 */
         .viewerBadge_container__1QSob {
             position: fixed !important;
             bottom: 0 !important;
             right: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: transparent !important;
-            pointer-events: none !important;
+            width: 80px !important;   /* 徽章宽度 */
+            height: 80px !important;  /* 徽章高度 */
+            background: white !important; /* 背景颜色和页面一致 */
+            pointer-events: none !important; /* 不阻止点击 */
             z-index: 9999 !important;
+            border-radius: 50%; /* 圆形遮罩更自然 */
         }
     </style>
 """
