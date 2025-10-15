@@ -12,8 +12,45 @@ if "uploaded_file" not in st.session_state:
     st.session_state.uploaded_file = None
     st.session_state.selected_extension = None
     st.session_state.config_path = None
+    st.session_state.process_response = None  # optional: store last response
 
-# Show uploader only if no file uploaded
+# -----------------------------
+# 封装：当用户按 Run 按钮时执行上传并调用后端
+# -----------------------------
+def run_script_with_progress():
+    uploaded_file = st.session_state.get("uploaded_file")
+    if uploaded_file is None:
+        st.error("没有可用的文件。请先上传一个 .aml 或 .xml 文件。")
+        return
+
+    files = {"file": (uploaded_file.name, uploaded_file)}
+    headers = {"x-api-key": API_KEY}
+
+    # 这里用 spinner 显示进度
+    with st.spinner("Processing..."):
+        try:
+            response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers, timeout=120)
+            response.raise_for_status()
+            result = response.json()
+            st.success("Processing complete!")
+            st.json(result)
+            # 可选：保存到 session_state 以便页面其他地方访问
+            st.session_state.process_response = result
+        except requests.exceptions.Timeout:
+            st.error("请求超时（timeout）。请稍后重试或检查后端服务是否可达。")
+        except requests.exceptions.HTTPError as he:
+            # 如果后端返回了错误码并且带有 json 内容，尝试显示
+            try:
+                st.error(f"HTTP error: {response.status_code}")
+                st.json(response.json())
+            except Exception:
+                st.error(f"HTTP error: {he}")
+        except Exception as e:
+            st.error(f"Error: {e}")
+
+# -----------------------------
+# 文件上传 UI（只在没有已上传文件时显示）
+# -----------------------------
 if st.session_state.uploaded_file is None:
     uploaded_file = st.file_uploader(
         "Choose a configuration file",
@@ -23,30 +60,14 @@ if st.session_state.uploaded_file is None:
         st.session_state.uploaded_file = uploaded_file
         st.session_state.selected_extension = uploaded_file.name.split(".")[-1].lower()
         st.session_state.config_path = f"configs/{uploaded_file.name}"
-        st.write(f"Uploading: {uploaded_file.name}")
+        st.write(f"Uploaded: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
-
-        files = {"file": (uploaded_file.name, uploaded_file)}  
-        headers = {"x-api-key": API_KEY}     
-        with st.spinner("Processing..."):
-            try:
-                response = requests.post(f"{BACKEND_URL}/process_file/", files=files, headers=headers)
-                response.raise_for_status()
-                st.success("Processing complete!")
-                st.json(response.json())
-            except Exception as e:
-                st.error(f"Error: {e}") 
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
 
-
-def run_script_with_progress():
-    # Get backend URL & API key from Streamlit secrets
-    pass
-
 # -----------------------------
-# STEP 2: Dynamic Tabs
+# STEP 2: Dynamic Tabs (Run 按钮会调用 run_script_with_progress)
 # -----------------------------
 if st.session_state.uploaded_file is None:
     st.info("Upload a file to unlock simulation options.")
@@ -65,7 +86,7 @@ else:
         with tab_inf:
             st.subheader("Run inFACTS Studio")
             if st.button("Run inFACTS Studio"):
-               run_script_with_progress()
+                run_script_with_progress()
 
     else:
         st.warning(f"Uploaded file type '.{ext}' does not unlock any simulation tab.")
