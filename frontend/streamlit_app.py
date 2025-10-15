@@ -21,6 +21,7 @@ if st.session_state.uploaded_file is None:
         st.session_state.selected_extension = uploaded_file.name.split(".")[-1].lower()
         st.session_state.config_path = f"configs/{uploaded_file.name}"
         st.write(f"Uploading: {uploaded_file.name}")
+        st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
 
         # Get backend URL & API key from Streamlit secrets
         BACKEND_URL = st.secrets["BACKEND_URL"]
