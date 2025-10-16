@@ -99,26 +99,24 @@ if st.session_state.uploaded_file is None:
         st.write(f"Uploaded: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
 
-        # ✅ Auto-generate operations
-        operations = generate_random_operations()
-
-        # ✅ Generate random simulation parameters
-        replications = random.randint(2, 5)
-        warmup_days = random.randint(1, 2)
-        horizon_days = random.randint(30, 60)
-
-        # ✅ Show in table format
-        st.write("✅ Operations:")
-        df_ops = pd.DataFrame(operations)
-        st.table(df_ops)
-
-        # ✅ Show simulation parameters
-        st.write(f"**Replications:** {replications}")
-        st.write(f"**Warmup:** {warmup_days} days")
-        st.write(f"**Horizon:** {horizon_days} days")
+        # Generate and persist operations and simulation parameters
+        st.session_state.operations = generate_random_operations()
+        st.session_state.replications = random.randint(2, 5)
+        st.session_state.warmup_days = random.randint(1, 2)
+        st.session_state.horizon_days = random.randint(30, 60)
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
+
+# Always show operations and simulation parameters if a file is uploaded
+if st.session_state.uploaded_file is not None:
+    if "operations" in st.session_state:
+        st.write("✅ Operations:")
+        df_ops = pd.DataFrame(st.session_state.operations)
+        st.table(df_ops)
+        st.write(f"**Replications:** {st.session_state.replications}")
+        st.write(f"**Warmup:** {st.session_state.warmup_days} days")
+        st.write(f"**Horizon:** {st.session_state.horizon_days} days")
 
 # -----------------------------
 # STEP 2: Dynamic Tabs (Run 按钮会调用 run_script_with_progress)
