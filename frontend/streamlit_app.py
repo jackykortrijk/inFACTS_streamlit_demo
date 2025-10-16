@@ -1,5 +1,8 @@
 import streamlit as st
+import pandas as pd
 import requests
+import random
+import string
 
 # 设置浏览器 Tab 的标题 和 图标
 st.set_page_config(
@@ -31,6 +34,21 @@ if "uploaded_file" not in st.session_state:
     st.session_state.selected_extension = None
     st.session_state.config_path = None
     st.session_state.process_response = None  # optional: store last response
+
+
+def generate_random_operations():
+    num_ops = random.randint(2, 5)
+    operations = []
+    for i in range(num_ops):
+        name = "Op" + ''.join(random.choices(string.ascii_uppercase, k=3))
+        mean = random.randint(100, 600)
+        sigma = random.randint(10, 50)
+        operations.append({
+            "name": name,
+            "mean": mean,
+            "sigma": sigma
+        })
+    return operations
 
 # -----------------------------
 # 封装：当用户按 Run 按钮时执行上传并调用后端
@@ -80,6 +98,14 @@ if st.session_state.uploaded_file is None:
         st.session_state.config_path = f"configs/{uploaded_file.name}"
         st.write(f"Uploaded: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
+
+        # ✅ Auto-generate operations
+        operations = generate_random_operations()
+
+        # ✅ Show in table format
+        st.write("✅ Operations:")
+        df_ops = pd.DataFrame(operations)
+        st.table(df_ops)
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
