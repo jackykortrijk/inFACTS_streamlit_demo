@@ -27,10 +27,11 @@
         scene.add(light);
 
         // Node geometry/material
-        const nodeGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-        const nodeMaterial = new THREE.MeshStandardMaterial({ color: 0x0077ff });
-        const bufferMaterial = new THREE.MeshStandardMaterial({ color: 0xffbb00 });
-        const sourceMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+    // Larger, higher-res nodes
+    const nodeGeometry = new THREE.SphereGeometry(1.1, 64, 64);
+    const nodeMaterial = new THREE.MeshStandardMaterial({ color: 0x0077ff, roughness: 0.3, metalness: 0.5 });
+    const bufferMaterial = new THREE.MeshStandardMaterial({ color: 0xffbb00, roughness: 0.3, metalness: 0.5 });
+    const sourceMaterial = new THREE.MeshStandardMaterial({ color: 0x00cc44, roughness: 0.3, metalness: 0.5 });
 
         let nodeMeshes = [];
         let labelSprites = [];
@@ -49,21 +50,41 @@
         function makeTextSprite(message) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            context.font = '16px Arial';
+            context.font = 'bold 22px Arial';
             const textWidth = context.measureText(message).width;
-            canvas.width = textWidth + 16;
-            canvas.height = 32;
-            context.font = '16px Arial';
-            context.fillStyle = 'rgba(255,255,255,0.9)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            canvas.width = textWidth + 32;
+            canvas.height = 48;
+            context.font = 'bold 22px Arial';
+            // Draw white rounded rect background
+            context.fillStyle = 'rgba(255,255,255,0.95)';
+            context.beginPath();
+            context.moveTo(8, 0);
+            context.lineTo(canvas.width-8, 0);
+            context.quadraticCurveTo(canvas.width, 0, canvas.width, 8);
+            context.lineTo(canvas.width, canvas.height-8);
+            context.quadraticCurveTo(canvas.width, canvas.height, canvas.width-8, canvas.height);
+            context.lineTo(8, canvas.height);
+            context.quadraticCurveTo(0, canvas.height, 0, canvas.height-8);
+            context.lineTo(0, 8);
+            context.quadraticCurveTo(0, 0, 8, 0);
+            context.closePath();
+            context.fill();
+            // Draw text
             context.fillStyle = '#222';
-            context.fillText(message, 8, 22);
+            context.textBaseline = 'middle';
+            context.fillText(message, 16, canvas.height/2);
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
             const sprite = new THREE.Sprite(spriteMaterial);
-            sprite.scale.set(canvas.width/32, 1, 1);
+            sprite.scale.set(canvas.width/20, 2.2, 1);
             return sprite;
         }
+            // Add outline to node
+            const outlineGeom = new THREE.SphereGeometry(1.18, 64, 64);
+            const outlineMat = new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.BackSide });
+            const outline = new THREE.Mesh(outlineGeom, outlineMat);
+            outline.position.copy(mesh.position);
+            mesh.add(outline);
 
         function renderFlow(ops) {
             clearScene();
