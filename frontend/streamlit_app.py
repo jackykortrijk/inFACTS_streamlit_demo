@@ -122,20 +122,16 @@ if st.session_state.uploaded_file is not None:
 
         # --- Three.js Visualization Integration ---
         import streamlit.components.v1 as components
-        # Read the HTML template
         html_path = os.path.join(os.path.dirname(__file__), "operations_flow.html")
         if os.path.exists(html_path):
             with open(html_path, "r", encoding="utf-8") as f:
                 html_template = f.read()
-            # Inject operations as JSON into the HTML
-            ops_json = json.dumps([op["name"] for op in st.session_state.operations])
-            # Replace a placeholder or inject a script to set operations
-            # We'll add a placeholder in the HTML: /*__OPERATIONS_PLACEHOLDER__*/
-            if 'const operations =' in html_template:
-                import re
-                html_code = re.sub(r'const operations = \[[^\]]*\];', f'const operations = {ops_json};', html_template)
-            else:
-                html_code = html_template
+            # Inject operations as JSON (full objects)
+            ops_json = json.dumps(st.session_state.operations)
+            html_code = html_template.replace(
+                '/*__OPERATIONS_PLACEHOLDER__*/',
+                f'const operations = {ops_json};'
+            )
             components.html(html_code, height=400)
         else:
             st.warning("Three.js visualization file not found.")

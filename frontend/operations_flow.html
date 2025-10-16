@@ -11,15 +11,8 @@
 <body>
     <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
     <script>
-        // Example operations, replace with dynamic data if needed
-        const operations = [
-            { name: 'Source' },
-            { name: 'OpA' },
-            { name: 'Buffer_1' },
-            { name: 'OpB' },
-            { name: 'Buffer_2' },
-            { name: 'OpC' }
-        ];
+        // Operations will be injected here by Streamlit
+        /*__OPERATIONS_PLACEHOLDER__*/
 
         // Scene setup
         const scene = new THREE.Scene();
@@ -43,8 +36,8 @@
         const spacing = 3;
         operations.forEach((op, i) => {
             let mat = nodeMaterial;
-            if (op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
-            if (op.name.toLowerCase() === 'source') mat = sourceMaterial;
+            if (op.name && op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
+            if (op.name && op.name.toLowerCase() === 'source') mat = sourceMaterial;
             const mesh = new THREE.Mesh(nodeGeometry, mat);
             mesh.position.x = i * spacing;
             scene.add(mesh);
@@ -58,7 +51,7 @@
             div.style.padding = '2px 6px';
             div.style.borderRadius = '4px';
             div.style.fontSize = '14px';
-            div.innerText = op.name;
+            div.innerText = op.name || '';
             div.id = 'label-' + i;
             document.body.appendChild(div);
         });
