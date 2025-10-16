@@ -208,11 +208,16 @@ else:
             if st.button("Run Visual Components"):
                 run_script_with_progress()
 
+
     elif ext == "xml":
-        tab_inf, = st.tabs(["⚙️ inFACTS Studio"])
+        tab_inf, tab_flexsim = st.tabs(["⚙️ inFACTS Studio", "⚙️ FlexSim"])
         with tab_inf:
             st.subheader("Run inFACTS Studio")
             if st.button("Run inFACTS Studio"):
+                run_script_with_progress()
+        with tab_flexsim:
+            st.subheader("Run FlexSim")
+            if st.button("Run FlexSim"):
                 run_script_with_progress()
 
     else:
