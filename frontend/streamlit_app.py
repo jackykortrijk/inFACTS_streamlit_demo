@@ -45,8 +45,8 @@ def generate_random_operations():
         sigma = random.randint(10, 50)
         operations.append({
             "name": name,
-            "mean": mean,
-            "sigma": sigma
+            "mean (unit: s)": mean,
+            "sigma (unit: s)": sigma
         })
     return operations
 
@@ -99,23 +99,23 @@ if st.session_state.uploaded_file is None:
         st.write(f"Uploaded: {uploaded_file.name}")
         st.success(f"✅ Configuration file uploaded: {uploaded_file.name}")
 
-    # ✅ Auto-generate operations
-    operations = generate_random_operations()
+        # ✅ Auto-generate operations
+        operations = generate_random_operations()
 
-    # ✅ Generate random simulation parameters
-    replications = random.randint(2, 5)
-    warmup_days = random.randint(1, 2)
-    horizon_days = random.randint(30, 60)
+        # ✅ Generate random simulation parameters
+        replications = random.randint(2, 5)
+        warmup_days = random.randint(1, 2)
+        horizon_days = random.randint(30, 60)
 
-    # ✅ Show in table format
-    st.write("✅ Operations:")
-    df_ops = pd.DataFrame(operations)
-    st.table(df_ops)
+        # ✅ Show in table format
+        st.write("✅ Operations:")
+        df_ops = pd.DataFrame(operations)
+        st.table(df_ops)
 
-    # ✅ Show simulation parameters
-    st.write(f"**Replications:** {replications}")
-    st.write(f"**Warmup:** {warmup_days} days")
-    st.write(f"**Horizon:** {horizon_days} days")
+        # ✅ Show simulation parameters
+        st.write(f"**Replications:** {replications}")
+        st.write(f"**Warmup:** {warmup_days} days")
+        st.write(f"**Horizon:** {horizon_days} days")
 else:
     st.success(f"✅ Using file: {st.session_state.uploaded_file.name}")
     st.info("🔒 File is locked. Refresh the page to upload a new one.")
