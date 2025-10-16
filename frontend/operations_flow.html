@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Operations Flow Visualization</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+    <script>
+        // Example operations, replace with dynamic data if needed
+        const operations = [
+            { name: 'Source' },
+            { name: 'OpA' },
+            { name: 'Buffer_1' },
+            { name: 'OpB' },
+            { name: 'Buffer_2' },
+            { name: 'OpC' }
+        ];
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const light = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(light);
+
+        // Node geometry/material
+        const nodeGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const nodeMaterial = new THREE.MeshStandardMaterial({ color: 0x0077ff });
+        const bufferMaterial = new THREE.MeshStandardMaterial({ color: 0xffbb00 });
+        const sourceMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+        // Layout nodes in a line
+        const nodeMeshes = [];
+        const spacing = 3;
+        operations.forEach((op, i) => {
+            let mat = nodeMaterial;
+            if (op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
+            if (op.name.toLowerCase() === 'source') mat = sourceMaterial;
+            const mesh = new THREE.Mesh(nodeGeometry, mat);
+            mesh.position.x = i * spacing;
+            scene.add(mesh);
+            nodeMeshes.push(mesh);
+
+            // Add label
+            const div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.color = '#222';
+            div.style.background = 'rgba(255,255,255,0.8)';
+            div.style.padding = '2px 6px';
+            div.style.borderRadius = '4px';
+            div.style.fontSize = '14px';
+            div.innerText = op.name;
+            div.id = 'label-' + i;
+            document.body.appendChild(div);
+        });
+
+        // Draw lines between nodes
+        for (let i = 0; i < nodeMeshes.length - 1; i++) {
+            const material = new THREE.LineBasicMaterial({ color: 0x222222 });
+            const points = [];
+            points.push(nodeMeshes[i].position);
+            points.push(nodeMeshes[i+1].position);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+        }
+
+        camera.position.z = 8;
+        camera.position.y = 2;
+        camera.lookAt(new THREE.Vector3(operations.length * spacing / 2, 0, 0));
+
+        // Animate and update labels
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+            // Update label positions
+            nodeMeshes.forEach((mesh, i) => {
+                const vector = mesh.position.clone();
+                vector.project(camera);
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+                const div = document.getElementById('label-' + i);
+                if (div) {
+                    div.style.left = `${x - div.offsetWidth/2}px`;
+                    div.style.top = `${y - div.offsetHeight/2}px`;
+                }
+            });
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
