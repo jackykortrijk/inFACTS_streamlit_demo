@@ -95,6 +95,16 @@ def run_script_with_progress():
             st.json(result)
             # 可选：保存到 session_state 以便页面其他地方访问
             st.session_state.process_response = result
+
+            # Generate random utilizations for each operation and store in session state
+            ops = st.session_state.operations
+            utilizations = []
+            for op in ops:
+                if op["name"].lower().startswith("op"):
+                    util = round(random.uniform(0.5, 0.99), 2)  # 50%~99%
+                    utilizations.append({"Operation": op["name"], "Utilization": util})
+            st.session_state.utilizations = utilizations
+
         except requests.exceptions.Timeout:
             st.error("The request timed out. Please try again later or check whether the backend service is reachable.")
         except requests.exceptions.HTTPError as he:
@@ -133,7 +143,69 @@ else:
 
 # Always show operations and simulation parameters if a file is uploaded
 if st.session_state.uploaded_file is not None:
+    # Show utilizations chart if available
+    if "utilizations" in st.session_state and st.session_state.utilizations:
+        st.write("### Operation Utilizations")
+        df_util = pd.DataFrame(st.session_state.utilizations)
+        st.bar_chart(df_util.set_index("Operation"))
     if "operations" in st.session_state:
+        # Separate source, buffers, and operations
+        ops = st.session_state.operations
+        source = [op for op in ops if op["name"].lower() == "source"]
+        buffers = [op for op in ops if op["name"].lower().startswith("buffer")]
+        # Remove unwanted keys from operations
+        operations = []
+        for op in ops:
+            if op["name"].lower().startswith("op"):
+                op_clean = {k: v for k, v in op.items() if k not in ["Max Capacity", "Interval (s)"]}
+                operations.append(op_clean)
+
+        # --- Three.js Visualization Integration (move before tables) ---
+        import streamlit.components.v1 as components
+        html_path = os.path.join(os.path.dirname(__file__), "operations_flow.html")
+        if os.path.exists(html_path):
+            with open(html_path, "r", encoding="utf-8") as f:
+                html_template = f.read()
+            # Clean operations for visualization: remove Max Capacity and Interval (s) from non-buffer/source
+            vis_ops = []
+            for op in ops:
+                if op["name"].lower() == "source":
+                    vis_ops.append(op)
+                elif op["name"].lower().startswith("buffer"):
+                    vis_ops.append(op)
+                elif op["name"].lower().startswith("op"):
+                    op_clean = {k: v for k, v in op.items() if k not in ["Max Capacity", "Interval (s)"]}
+                    vis_ops.append(op_clean)
+            ops_json = json.dumps(vis_ops)
+            html_code = html_template.replace(
+                '/*__OPERATIONS_PLACEHOLDER__*/',
+                f'const operations = {ops_json};'
+            )
+            components.html(html_code, height=400)
+        else:
+            st.warning("Three.js visualization file not found.")
+
+        # Show Source table
+        if source:
+            st.write("✅ Source:")
+            df_source = pd.DataFrame(source)[["name", "Interval (s)"]]
+            st.table(df_source)
+
+        # Show Buffers table
+        if buffers:
+            st.write("✅ Buffers:")
+            df_buffers = pd.DataFrame(buffers)[["name", "Max Capacity"]]
+            st.table(df_buffers)
+
+        # Show Operations table
+        if operations:
+            st.write("✅ Operations:")
+            df_ops = pd.DataFrame(operations)[["name", "mean (unit: s)", "sigma (unit: s)", "MTTR (%)"]]
+            st.table(df_ops)
+
+        st.write(f"**Replications:** {st.session_state.replications}")
+        st.write(f"**Warmup:** {st.session_state.warmup_days} days")
+        st.write(f"**Horizon:** {st.session_state.horizon_days} days")
 
         # Separate source, buffers, and operations
         ops = st.session_state.operations
