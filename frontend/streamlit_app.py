@@ -186,7 +186,7 @@ if st.session_state.uploaded_file is not None:
         # Show Operations table
         if operations:
             st.write("✅ Operations:")
-            df_ops = pd.DataFrame(operations)[["name", "mean (unit: s)", "sigma (unit: s)", "MTTR (%)"]]
+            df_ops = pd.DataFrame(operations)[["name", "mean (s)", "sigma (s)", "MTTR (%)"]]
             st.table(df_ops)
 
         st.write(f"**Replications:** {st.session_state.replications}")
