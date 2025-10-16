@@ -131,19 +131,19 @@
                 const shaft = new THREE.Line(shaftGeometry, shaftMaterial);
                 scene.add(shaft);
                 lines.push(shaft);
-                // Draw arrow head
-                const arrowLength = 0.7;
-                const arrowWidth = 0.3;
-                // Arrow base at the end of the shaft
-                const arrowBase = shaftEnd;
+                // Draw improved arrow head
+                const arrowLength = 1.0; // longer arrow head
+                const arrowWidth = 0.45; // wider arrow head
+                // Arrow tip a bit before the node center
+                const tip = to.clone().add(dir.clone().multiplyScalar(-nodeRadius + 0.05));
+                // Arrow base is further back from tip
+                const arrowBase = tip.clone().add(dir.clone().multiplyScalar(-arrowLength));
                 // Perpendicular direction (in XY plane)
                 const perp = new THREE.Vector3(-dir.y, dir.x, 0).normalize();
                 const left = arrowBase.clone().add(perp.clone().multiplyScalar(arrowWidth));
                 const right = arrowBase.clone().add(perp.clone().multiplyScalar(-arrowWidth));
-                // Arrow tip a bit before the node center
-                const tip = to.clone().add(dir.clone().multiplyScalar(-nodeRadius + 0.05));
-                // Draw two lines for the arrow head
-                const arrowHeadMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
+                // Draw two lines for the arrow head, thicker
+                const arrowHeadMaterial = new THREE.LineBasicMaterial({ color: 0x222222, linewidth: 3 });
                 const leftHeadGeometry = new THREE.BufferGeometry().setFromPoints([left, tip]);
                 const rightHeadGeometry = new THREE.BufferGeometry().setFromPoints([right, tip]);
                 const leftHead = new THREE.Line(leftHeadGeometry, arrowHeadMaterial);
