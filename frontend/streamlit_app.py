@@ -51,11 +51,13 @@ def generate_random_operations():
     for i in range(num_ops):
         # Add Buffer before each operation except the first
         if i > 0:
+            max_capacity = random.randint(10, 50)
             operations.append({
                 "name": f"Buffer_{i}",
                 "mean (unit: s)": "-",
                 "sigma (unit: s)": "-",
-                "MTTR (%)": "-"
+                "MTTR (%)": "-",
+                "Max Capacity": max_capacity
             })
         name = "Op" + ''.join(random.choices(string.ascii_uppercase, k=3))
         mean = random.randint(100, 600)
@@ -161,7 +163,7 @@ if st.session_state.uploaded_file is not None:
         # Show Buffers table
         if buffers:
             st.write("✅ Buffers:")
-            df_buffers = pd.DataFrame(buffers)[["name"]]
+            df_buffers = pd.DataFrame(buffers)[["name", "Max Capacity"]]
             st.table(df_buffers)
 
         # Show Operations table
