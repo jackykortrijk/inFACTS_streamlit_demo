@@ -255,8 +255,8 @@ else:
                         ax2.legend()
                         st.pyplot(fig2)
 
-            else:
-                st.warning("Backend did not return a valid response.")
+                else:
+                    st.warning("Backend did not return a valid response.")
         with tab_flexsim:
             st.subheader("Run FlexSim")
             if st.button("Run FlexSim"):
@@ -297,8 +297,8 @@ else:
                         ax2.legend()
                         st.pyplot(fig2)
 
-            else:
-                st.warning("Backend did not return a valid response.")
+                else:
+                    st.warning("Backend did not return a valid response.")
 
     else:
         st.warning(f"Uploaded file type '.{ext}' does not unlock any simulation tab.")
