@@ -219,51 +219,44 @@ else:
             st.subheader("Run inFACTS Studio")
             if st.button("Run inFACTS Studio"):
                 run_script_with_progress()  # ✅ Call backend first
+
+                # ✅ Only generate plots if backend response is valid
                 if st.session_state.get("process_response"):
-                    # Generate and store random chart data
+
+                    # --- Utilization Bar Chart ---
                     ops = st.session_state.operations
                     op_names = [op["name"] for op in ops if op["name"].lower().startswith("op")]
+
                     import numpy as np
                     utilizations = np.random.uniform(0.5, 0.99, size=len(op_names))
-                    st.session_state["infacts_utilizations"] = utilizations.tolist()
-                    st.session_state["infacts_op_names"] = op_names
+                    import matplotlib.pyplot as plt
+                    fig, ax = plt.subplots()
+                    ax.bar(op_names, utilizations, color="#0077ff")
+                    ax.set_ylabel("Utilization")
+                    ax.set_ylim(0, 1)
+                    ax.set_title("Operation Utilization")
+                    for i, v in enumerate(utilizations):
+                        ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
+                    st.pyplot(fig)
+
+                    # --- Buffers WIP Line Chart ---
                     buffer_names = [op["name"] for op in ops if op["name"].lower().startswith("buffer")]
-                    st.session_state["infacts_buffer_names"] = buffer_names
                     if buffer_names:
                         import pandas as pd
                         time_points = list(range(1, 11))
                         wip_data = {name: np.random.randint(0, 10, size=len(time_points)) for name in buffer_names}
-                        st.session_state["infacts_time_points"] = time_points
-                        st.session_state["infacts_wip_data"] = wip_data
-            # Show charts if data is present
-            if st.session_state.get("infacts_utilizations") and st.session_state.get("infacts_op_names"):
-                import matplotlib.pyplot as plt
-                fig, ax = plt.subplots()
-                utilizations = st.session_state["infacts_utilizations"]
-                op_names = st.session_state["infacts_op_names"]
-                ax.bar(op_names, utilizations, color="#0077ff")
-                ax.set_ylabel("Utilization")
-                ax.set_ylim(0, 1)
-                ax.set_title("Operation Utilization")
-                for i, v in enumerate(utilizations):
-                    ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
-                st.pyplot(fig)
-            if st.session_state.get("infacts_buffer_names") and st.session_state.get("infacts_wip_data"):
-                import pandas as pd
-                buffer_names = st.session_state["infacts_buffer_names"]
-                time_points = st.session_state["infacts_time_points"]
-                wip_data = st.session_state["infacts_wip_data"]
-                df_wip = pd.DataFrame(wip_data, index=time_points)
-                fig2, ax2 = plt.subplots()
-                for name in buffer_names:
-                    ax2.plot(time_points, df_wip[name], marker='o', label=name)
-                ax2.set_xlabel("Time")
-                ax2.set_ylabel("WIP")
-                ax2.set_title("Buffers WIP Over Time")
-                ax2.legend()
-                st.pyplot(fig2)
-            if not st.session_state.get("process_response"):
-                st.warning("Backend did not return a valid response.")
+                        df_wip = pd.DataFrame(wip_data, index=time_points)
+                        fig2, ax2 = plt.subplots()
+                        for name in buffer_names:
+                            ax2.plot(time_points, df_wip[name], marker='o', label=name)
+                        ax2.set_xlabel("Time")
+                        ax2.set_ylabel("WIP")
+                        ax2.set_title("Buffers WIP Over Time")
+                        ax2.legend()
+                        st.pyplot(fig2)
+
+                else:
+                    st.warning("Backend did not return a valid response.")
         with tab_flexsim:
             st.subheader("Run FlexSim")
             if st.button("Run FlexSim"):
@@ -304,55 +297,8 @@ else:
                         ax2.legend()
                         st.pyplot(fig2)
 
-                with tab_flexsim:
-                    st.subheader("Run FlexSim")
-                    run_flexsim_clicked = st.session_state.get("run_flexsim_clicked", False)
-                    if st.button("Run FlexSim"):
-                        st.session_state["run_flexsim_clicked"] = True
-                        run_flexsim_clicked = True
-                        run_script_with_progress()
-                        # Generate and store random chart data
-                        ops = st.session_state.operations
-                        op_names = [op["name"] for op in ops if op["name"].lower().startswith("op")]
-                        import numpy as np
-                        utilizations = np.random.uniform(0.5, 0.99, size=len(op_names))
-                        st.session_state["flexsim_utilizations"] = utilizations.tolist()
-                        st.session_state["flexsim_op_names"] = op_names
-                        buffer_names = [op["name"] for op in ops if op["name"].lower().startswith("buffer")]
-                        st.session_state["flexsim_buffer_names"] = buffer_names
-                        if buffer_names:
-                            import pandas as pd
-                            time_points = list(range(1, 11))
-                            wip_data = {name: np.random.randint(0, 10, size=len(time_points)) for name in buffer_names}
-                            st.session_state["flexsim_time_points"] = time_points
-                            st.session_state["flexsim_wip_data"] = wip_data
+                else:
+                    st.warning("Backend did not return a valid response.")
 
-                    # Show charts if data is present
-                    if st.session_state.get("flexsim_utilizations") and st.session_state.get("flexsim_op_names"):
-                        import matplotlib.pyplot as plt
-                        fig, ax = plt.subplots()
-                        utilizations = st.session_state["flexsim_utilizations"]
-                        op_names = st.session_state["flexsim_op_names"]
-                        ax.bar(op_names, utilizations, color="#0077ff")
-                        ax.set_ylabel("Utilization")
-                        ax.set_ylim(0, 1)
-                        ax.set_title("Operation Utilization")
-                        for i, v in enumerate(utilizations):
-                            ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
-                        st.pyplot(fig)
-                    if st.session_state.get("flexsim_buffer_names") and st.session_state.get("flexsim_wip_data"):
-                        import pandas as pd
-                        buffer_names = st.session_state["flexsim_buffer_names"]
-                        time_points = st.session_state["flexsim_time_points"]
-                        wip_data = st.session_state["flexsim_wip_data"]
-                        df_wip = pd.DataFrame(wip_data, index=time_points)
-                        fig2, ax2 = plt.subplots()
-                        for name in buffer_names:
-                            ax2.plot(time_points, df_wip[name], marker='o', label=name)
-                        ax2.set_xlabel("Time")
-                        ax2.set_ylabel("WIP")
-                        ax2.set_title("Buffers WIP Over Time")
-                        ax2.legend()
-                        st.pyplot(fig2)
-                    if run_flexsim_clicked and not st.session_state.get("process_response"):
-                        st.warning("Backend did not return a valid response.")
+    else:
+        st.warning(f"Uploaded file type '.{ext}' does not unlock any simulation tab.")
