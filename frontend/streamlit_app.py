@@ -38,7 +38,7 @@ if "uploaded_file" not in st.session_state:
 def run_script_with_progress():
     uploaded_file = st.session_state.get("uploaded_file")
     if uploaded_file is None:
-        st.error("没有可用的文件。请先上传一个 .aml 或 .xml 文件。")
+        st.error("No files available. Please upload a .aml or .xml file first.")
         return
 
     files = {"file": (uploaded_file.name, uploaded_file)}
@@ -55,7 +55,7 @@ def run_script_with_progress():
             # 可选：保存到 session_state 以便页面其他地方访问
             st.session_state.process_response = result
         except requests.exceptions.Timeout:
-            st.error("请求超时（timeout）。请稍后重试或检查后端服务是否可达。")
+            st.error("The request timed out. Please try again later or check whether the backend service is reachable.")
         except requests.exceptions.HTTPError as he:
             # 如果后端返回了错误码并且带有 json 内容，尝试显示
             try:
