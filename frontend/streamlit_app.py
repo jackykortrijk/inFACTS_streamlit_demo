@@ -41,12 +41,14 @@ if "uploaded_file" not in st.session_state:
 def generate_random_operations():
     num_ops = random.randint(2, 5)
     operations = []
-    # Add Source at the beginning
+    # Add Source at the beginning with a random interval (speed)
+    interval = random.randint(30, 100)  # seconds
     operations.append({
         "name": "Source",
         "mean (unit: s)": "-",
         "sigma (unit: s)": "-",
-        "MTTR (%)": "-"
+        "MTTR (%)": "-",
+        "Interval (s)": interval
     })
     for i in range(num_ops):
         # Add Buffer before each operation except the first
@@ -132,11 +134,17 @@ else:
 # Always show operations and simulation parameters if a file is uploaded
 if st.session_state.uploaded_file is not None:
     if "operations" in st.session_state:
+
         # Separate source, buffers, and operations
         ops = st.session_state.operations
         source = [op for op in ops if op["name"].lower() == "source"]
         buffers = [op for op in ops if op["name"].lower().startswith("buffer")]
-        operations = [op for op in ops if op["name"].lower().startswith("op")]
+        # Remove unwanted keys from operations
+        operations = []
+        for op in ops:
+            if op["name"].lower().startswith("op"):
+                op_clean = {k: v for k, v in op.items() if k not in ["Max Capacity", "Interval (s)"]}
+                operations.append(op_clean)
 
         # --- Three.js Visualization Integration (move before tables) ---
         import streamlit.components.v1 as components
@@ -144,8 +152,17 @@ if st.session_state.uploaded_file is not None:
         if os.path.exists(html_path):
             with open(html_path, "r", encoding="utf-8") as f:
                 html_template = f.read()
-            # Inject operations as JSON (full objects)
-            ops_json = json.dumps(st.session_state.operations)
+            # Clean operations for visualization: remove Max Capacity and Interval (s) from non-buffer/source
+            vis_ops = []
+            for op in ops:
+                if op["name"].lower() == "source":
+                    vis_ops.append(op)
+                elif op["name"].lower().startswith("buffer"):
+                    vis_ops.append(op)
+                elif op["name"].lower().startswith("op"):
+                    op_clean = {k: v for k, v in op.items() if k not in ["Max Capacity", "Interval (s)"]}
+                    vis_ops.append(op_clean)
+            ops_json = json.dumps(vis_ops)
             html_code = html_template.replace(
                 '/*__OPERATIONS_PLACEHOLDER__*/',
                 f'const operations = {ops_json};'
@@ -157,7 +174,7 @@ if st.session_state.uploaded_file is not None:
         # Show Source table
         if source:
             st.write("✅ Source:")
-            df_source = pd.DataFrame(source)[["name"]]
+            df_source = pd.DataFrame(source)[["name", "Interval (s)"]]
             st.table(df_source)
 
         # Show Buffers table
