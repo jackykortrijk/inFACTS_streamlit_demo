@@ -51,7 +51,7 @@ def generate_random_operations():
     for i in range(num_ops):
         # Add Buffer before each operation except the first
         if i > 0:
-            max_capacity = random.randint(10, 50)
+            max_capacity = random.choice([x for x in range(10, 51, 5)])
             operations.append({
                 "name": f"Buffer_{i}",
                 "mean (unit: s)": "-",
