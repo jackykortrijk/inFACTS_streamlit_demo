@@ -41,14 +41,31 @@ if "uploaded_file" not in st.session_state:
 def generate_random_operations():
     num_ops = random.randint(2, 5)
     operations = []
+    # Add Source at the beginning
+    operations.append({
+        "name": "Source",
+        "mean (unit: s)": "-",
+        "sigma (unit: s)": "-",
+        "MTTR (min)": "-"
+    })
     for i in range(num_ops):
+        # Add Buffer before each operation except the first
+        if i > 0:
+            operations.append({
+                "name": f"Buffer_{i}",
+                "mean (unit: s)": "-",
+                "sigma (unit: s)": "-",
+                "MTTR (min)": "-"
+            })
         name = "Op" + ''.join(random.choices(string.ascii_uppercase, k=3))
         mean = random.randint(100, 600)
         sigma = random.randint(10, 50)
+        mttr = random.randint(10, 120)  # MTTR in minutes
         operations.append({
             "name": name,
             "mean (unit: s)": mean,
-            "sigma (unit: s)": sigma
+            "sigma (unit: s)": sigma,
+            "MTTR (min)": mttr
         })
     return operations
 
