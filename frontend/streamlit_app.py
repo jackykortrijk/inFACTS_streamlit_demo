@@ -42,7 +42,7 @@ def generate_random_operations():
     num_ops = random.randint(2, 5)
     operations = []
     # Add Source at the beginning with a random interval (speed)
-    interval = random.randint(30, 100)  # seconds
+    interval = random.choice([x for x in range(30, 101, 5)])  # seconds, step 5
     operations.append({
         "name": "Source",
         "mean (s)": "-",
