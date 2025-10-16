@@ -219,6 +219,23 @@ else:
             st.subheader("Run inFACTS Studio")
             if st.button("Run inFACTS Studio"):
                 run_script_with_progress()
+
+                # --- Utilization Bar Chart ---
+                # Find operations (not source or buffer)
+                ops = st.session_state.operations
+                op_names = [op["name"] for op in ops if op["name"].lower().startswith("op")]
+                # For demonstration, generate random utilization values (replace with real data as needed)
+                import numpy as np
+                utilizations = np.random.uniform(0.5, 0.99, size=len(op_names))
+                import matplotlib.pyplot as plt
+                fig, ax = plt.subplots()
+                ax.bar(op_names, utilizations, color="#0077ff")
+                ax.set_ylabel("Utilization")
+                ax.set_ylim(0, 1)
+                ax.set_title("Operation Utilization")
+                for i, v in enumerate(utilizations):
+                    ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
+                st.pyplot(fig)
         with tab_flexsim:
             st.subheader("Run FlexSim")
             if st.button("Run FlexSim"):
