@@ -43,11 +43,10 @@ def generate_random_operations():
     operations = []
     # Add Source at the beginning with a random interval (speed)
     interval = random.choice([x for x in range(30, 101, 5)])  # seconds, step 5
-    src_name = "Pt" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
     operations.append({
-        "name": src_name,
-        "mean (unit: s)": "-",
-        "sigma (unit: s)": "-",
+        "name": "Source",
+        "mean (s)": "-",
+        "sigma (s)": "-",
         "MTTR (%)": "-",
         "Interval (s)": interval
     })
