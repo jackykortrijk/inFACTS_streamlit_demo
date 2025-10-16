@@ -130,9 +130,30 @@ else:
 # Always show operations and simulation parameters if a file is uploaded
 if st.session_state.uploaded_file is not None:
     if "operations" in st.session_state:
-        st.write("✅ Operations:")
-        df_ops = pd.DataFrame(st.session_state.operations)
-        st.table(df_ops)
+        # Separate source, buffers, and operations
+        ops = st.session_state.operations
+        source = [op for op in ops if op["name"].lower() == "source"]
+        buffers = [op for op in ops if op["name"].lower().startswith("buffer")]
+        operations = [op for op in ops if op["name"].lower().startswith("op")]
+
+        # Show Source table
+        if source:
+            st.write("✅ Source:")
+            df_source = pd.DataFrame(source)[["name"]]
+            st.table(df_source)
+
+        # Show Buffers table
+        if buffers:
+            st.write("✅ Buffers:")
+            df_buffers = pd.DataFrame(buffers)[["name"]]
+            st.table(df_buffers)
+
+        # Show Operations table
+        if operations:
+            st.write("✅ Operations:")
+            df_ops = pd.DataFrame(operations)[["name", "mean (unit: s)", "sigma (unit: s)", "MTTR (min)"]]
+            st.table(df_ops)
+
         st.write(f"**Replications:** {st.session_state.replications}")
         st.write(f"**Warmup:** {st.session_state.warmup_days} days")
         st.write(f"**Horizon:** {st.session_state.horizon_days} days")
