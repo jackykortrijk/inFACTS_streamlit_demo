@@ -236,6 +236,23 @@ else:
                 for i, v in enumerate(utilizations):
                     ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom')
                 st.pyplot(fig)
+
+                # --- Buffers WIP Line Chart ---
+                buffer_names = [op["name"] for op in ops if op["name"].lower().startswith("buffer")]
+                if buffer_names:
+                    # For demonstration, generate random WIP time series for each buffer
+                    import pandas as pd
+                    time_points = list(range(1, 11))  # 10 time points
+                    wip_data = {name: np.random.randint(0, 10, size=len(time_points)) for name in buffer_names}
+                    df_wip = pd.DataFrame(wip_data, index=time_points)
+                    fig2, ax2 = plt.subplots()
+                    for name in buffer_names:
+                        ax2.plot(time_points, df_wip[name], marker='o', label=name)
+                    ax2.set_xlabel("Time")
+                    ax2.set_ylabel("WIP")
+                    ax2.set_title("Buffers WIP Over Time")
+                    ax2.legend()
+                    st.pyplot(fig2)
         with tab_flexsim:
             st.subheader("Run FlexSim")
             if st.button("Run FlexSim"):
