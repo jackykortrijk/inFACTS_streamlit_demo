@@ -45,8 +45,8 @@ def generate_random_operations():
     interval = random.randint(30, 100)  # seconds
     operations.append({
         "name": "Source",
-        "mean (unit: s)": "-",
-        "sigma (unit: s)": "-",
+        "mean (s)": "-",
+        "sigma (s)": "-",
         "MTTR (%)": "-",
         "Interval (s)": interval
     })
@@ -56,8 +56,8 @@ def generate_random_operations():
             max_capacity = random.choice([x for x in range(10, 51, 5)])
             operations.append({
                 "name": f"Buffer_{i}",
-                "mean (unit: s)": "-",
-                "sigma (unit: s)": "-",
+                "mean (s)": "-",
+                "sigma (s)": "-",
                 "MTTR (%)": "-",
                 "Max Capacity": max_capacity
             })
