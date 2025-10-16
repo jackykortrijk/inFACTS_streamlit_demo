@@ -67,8 +67,8 @@ def generate_random_operations():
         mttr_percent = random.randint(10, 30)  # MTTR as percentage
         operations.append({
             "name": name,
-            "mean (unit: s)": mean,
-            "sigma (unit: s)": sigma,
+            "mean (s)": mean,
+            "sigma (s)": sigma,
             "MTTR (%)": f"{mttr_percent}%"
         })
     return operations
