@@ -117,25 +117,31 @@
             for (let i = 0; i < nodeMeshes.length - 1; i++) {
                 const from = nodeMeshes[i].position;
                 const to = nodeMeshes[i+1].position;
+                // Node radius (should match sphere geometry radius)
+                const nodeRadius = 0.5;
+                // Direction vector
+                const dir = new THREE.Vector3().subVectors(to, from).normalize();
+                // Shorten the shaft so the arrow tip is just before the next node
+                const shaftEnd = to.clone().add(dir.clone().multiplyScalar(-nodeRadius - 0.05));
+                const shaftStart = from.clone().add(dir.clone().multiplyScalar(nodeRadius + 0.05));
                 // Draw arrow shaft
                 const shaftMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
-                const shaftPoints = [from, to];
+                const shaftPoints = [shaftStart, shaftEnd];
                 const shaftGeometry = new THREE.BufferGeometry().setFromPoints(shaftPoints);
                 const shaft = new THREE.Line(shaftGeometry, shaftMaterial);
                 scene.add(shaft);
                 lines.push(shaft);
                 // Draw arrow head
-                const dir = new THREE.Vector3().subVectors(to, from).normalize();
                 const arrowLength = 0.7;
                 const arrowWidth = 0.3;
-                // Arrow base at 85% of the way from from->to
-                const arrowBase = from.clone().lerp(to, 0.85);
+                // Arrow base at the end of the shaft
+                const arrowBase = shaftEnd;
                 // Perpendicular direction (in XY plane)
                 const perp = new THREE.Vector3(-dir.y, dir.x, 0).normalize();
                 const left = arrowBase.clone().add(perp.clone().multiplyScalar(arrowWidth));
                 const right = arrowBase.clone().add(perp.clone().multiplyScalar(-arrowWidth));
-                // Arrow tip at the end
-                const tip = to.clone();
+                // Arrow tip a bit before the node center
+                const tip = to.clone().add(dir.clone().multiplyScalar(-nodeRadius + 0.05));
                 // Draw two lines for the arrow head
                 const arrowHeadMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
                 const leftHeadGeometry = new THREE.BufferGeometry().setFromPoints([left, tip]);
