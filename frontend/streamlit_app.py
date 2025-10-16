@@ -43,8 +43,9 @@ def generate_random_operations():
     operations = []
     # Add Source at the beginning with a random interval (speed)
     interval = random.choice([x for x in range(30, 101, 5)])  # seconds, step 5
+    source_name = "Pt" + ''.join(random.choices(string.ascii_uppercase, k=3))
     operations.append({
-        "name": "Source",
+        "name": source_name,
         "mean (s)": "-",
         "sigma (s)": "-",
         "MTTR (%)": "-",
@@ -54,8 +55,9 @@ def generate_random_operations():
         # Add Buffer before each operation except the first
         if i > 0:
             max_capacity = random.choice([x for x in range(10, 51, 5)])
+            buffer_name = "Bf" + ''.join(random.choices(string.ascii_uppercase, k=3))
             operations.append({
-                "name": f"Buffer_{i}",
+                "name": buffer_name,
                 "mean (s)": "-",
                 "sigma (s)": "-",
                 "MTTR (%)": "-",
