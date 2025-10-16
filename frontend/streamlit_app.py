@@ -46,7 +46,7 @@ def generate_random_operations():
         "name": "Source",
         "mean (unit: s)": "-",
         "sigma (unit: s)": "-",
-        "MTTR (min)": "-"
+        "MTTR (%)": "-"
     })
     for i in range(num_ops):
         # Add Buffer before each operation except the first
@@ -55,17 +55,17 @@ def generate_random_operations():
                 "name": f"Buffer_{i}",
                 "mean (unit: s)": "-",
                 "sigma (unit: s)": "-",
-                "MTTR (min)": "-"
+                "MTTR (%)": "-"
             })
         name = "Op" + ''.join(random.choices(string.ascii_uppercase, k=3))
         mean = random.randint(100, 600)
         sigma = random.randint(10, 50)
-        mttr = random.randint(10, 120)  # MTTR in minutes
+        mttr_percent = random.randint(10, 30)  # MTTR as percentage
         operations.append({
             "name": name,
             "mean (unit: s)": mean,
             "sigma (unit: s)": sigma,
-            "MTTR (min)": mttr
+            "MTTR (%)": f"{mttr_percent}%"
         })
     return operations
 
@@ -167,7 +167,7 @@ if st.session_state.uploaded_file is not None:
         # Show Operations table
         if operations:
             st.write("✅ Operations:")
-            df_ops = pd.DataFrame(operations)[["name", "mean (unit: s)", "sigma (unit: s)", "MTTR (min)"]]
+            df_ops = pd.DataFrame(operations)[["name", "mean (unit: s)", "sigma (unit: s)", "MTTR (%)"]]
             st.table(df_ops)
 
         st.write(f"**Replications:** {st.session_state.replications}")
