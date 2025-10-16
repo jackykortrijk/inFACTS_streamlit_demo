@@ -12,7 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
     <script>
         // Operations will be injected here by Streamlit
-        /*__OPERATIONS_PLACEHOLDER__*/
+
+    /*__OPERATIONS_PLACEHOLDER__*/
 
         // Scene setup (2D)
         const scene = new THREE.Scene();
@@ -90,14 +91,17 @@
 
         function renderFlow(ops) {
             clearScene();
-            createCamera(ops.length);
+            // Add a Sink node at the end
+            const allOps = [...ops, { name: 'Sink' }];
+            createCamera(allOps.length);
             const spacing = 3;
-            ops.forEach((op, i) => {
+            allOps.forEach((op, i) => {
                 let mat = nodeMaterial;
                 if (op.name && op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
                 if (op.name && op.name.toLowerCase() === 'source') mat = sourceMaterial;
+                if (op.name && op.name.toLowerCase() === 'sink') mat = new THREE.MeshStandardMaterial({ color: 0xff3333 });
                 const mesh = new THREE.Mesh(nodeGeometry, mat);
-                mesh.position.x = i * spacing - ((ops.length - 1) * spacing) / 2;
+                mesh.position.x = i * spacing - ((allOps.length - 1) * spacing) / 2;
                 mesh.position.y = 0;
                 mesh.position.z = 0;
                 scene.add(mesh);
@@ -109,16 +113,39 @@
                 scene.add(label);
                 labelSprites.push(label);
             });
-            // Draw lines between nodes
+            // Draw arrows between nodes
             for (let i = 0; i < nodeMeshes.length - 1; i++) {
-                const material = new THREE.LineBasicMaterial({ color: 0x222222 });
-                const points = [];
-                points.push(nodeMeshes[i].position);
-                points.push(nodeMeshes[i+1].position);
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const line = new THREE.Line(geometry, material);
-                scene.add(line);
-                lines.push(line);
+                const from = nodeMeshes[i].position;
+                const to = nodeMeshes[i+1].position;
+                // Draw arrow shaft
+                const shaftMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
+                const shaftPoints = [from, to];
+                const shaftGeometry = new THREE.BufferGeometry().setFromPoints(shaftPoints);
+                const shaft = new THREE.Line(shaftGeometry, shaftMaterial);
+                scene.add(shaft);
+                lines.push(shaft);
+                // Draw arrow head
+                const dir = new THREE.Vector3().subVectors(to, from).normalize();
+                const arrowLength = 0.7;
+                const arrowWidth = 0.3;
+                // Arrow base at 85% of the way from from->to
+                const arrowBase = from.clone().lerp(to, 0.85);
+                // Perpendicular direction (in XY plane)
+                const perp = new THREE.Vector3(-dir.y, dir.x, 0).normalize();
+                const left = arrowBase.clone().add(perp.clone().multiplyScalar(arrowWidth));
+                const right = arrowBase.clone().add(perp.clone().multiplyScalar(-arrowWidth));
+                // Arrow tip at the end
+                const tip = to.clone();
+                // Draw two lines for the arrow head
+                const arrowHeadMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
+                const leftHeadGeometry = new THREE.BufferGeometry().setFromPoints([left, tip]);
+                const rightHeadGeometry = new THREE.BufferGeometry().setFromPoints([right, tip]);
+                const leftHead = new THREE.Line(leftHeadGeometry, arrowHeadMaterial);
+                const rightHead = new THREE.Line(rightHeadGeometry, arrowHeadMaterial);
+                scene.add(leftHead);
+                scene.add(rightHead);
+                lines.push(leftHead);
+                lines.push(rightHead);
             }
         }
 
