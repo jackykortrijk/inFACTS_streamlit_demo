@@ -136,6 +136,22 @@ if st.session_state.uploaded_file is not None:
         buffers = [op for op in ops if op["name"].lower().startswith("buffer")]
         operations = [op for op in ops if op["name"].lower().startswith("op")]
 
+        # --- Three.js Visualization Integration (move before tables) ---
+        import streamlit.components.v1 as components
+        html_path = os.path.join(os.path.dirname(__file__), "operations_flow.html")
+        if os.path.exists(html_path):
+            with open(html_path, "r", encoding="utf-8") as f:
+                html_template = f.read()
+            # Inject operations as JSON (full objects)
+            ops_json = json.dumps(st.session_state.operations)
+            html_code = html_template.replace(
+                '/*__OPERATIONS_PLACEHOLDER__*/',
+                f'const operations = {ops_json};'
+            )
+            components.html(html_code, height=400)
+        else:
+            st.warning("Three.js visualization file not found.")
+
         # Show Source table
         if source:
             st.write("✅ Source:")
@@ -157,22 +173,6 @@ if st.session_state.uploaded_file is not None:
         st.write(f"**Replications:** {st.session_state.replications}")
         st.write(f"**Warmup:** {st.session_state.warmup_days} days")
         st.write(f"**Horizon:** {st.session_state.horizon_days} days")
-
-        # --- Three.js Visualization Integration ---
-        import streamlit.components.v1 as components
-        html_path = os.path.join(os.path.dirname(__file__), "operations_flow.html")
-        if os.path.exists(html_path):
-            with open(html_path, "r", encoding="utf-8") as f:
-                html_template = f.read()
-            # Inject operations as JSON (full objects)
-            ops_json = json.dumps(st.session_state.operations)
-            html_code = html_template.replace(
-                '/*__OPERATIONS_PLACEHOLDER__*/',
-                f'const operations = {ops_json};'
-            )
-            components.html(html_code, height=400)
-        else:
-            st.warning("Three.js visualization file not found.")
 
 # -----------------------------
 # STEP 2: Dynamic Tabs (Run 按钮会调用 run_script_with_progress)
