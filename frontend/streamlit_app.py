@@ -243,13 +243,19 @@ else:
                     buffer_names = [op["name"] for op in ops if op["name"].lower().startswith("buffer")]
                     if buffer_names:
                         import pandas as pd
-                        time_points = list(range(1, 11))
-                        wip_data = {name: np.random.randint(0, 10, size=len(time_points)) for name in buffer_names}
+                        # Timespan is horizon - warmup
+                        horizon = st.session_state.horizon_days
+                        warmup = st.session_state.warmup_days
+                        timespan = horizon - warmup
+                        time_points = list(range(1, timespan + 1))
+                        # Get max capacity for each buffer
+                        buffer_caps = {op["name"]: op["Max Capacity"] for op in ops if op["name"].lower().startswith("buffer")}
+                        wip_data = {name: np.random.randint(0, buffer_caps[name]+1, size=len(time_points)) for name in buffer_names}
                         df_wip = pd.DataFrame(wip_data, index=time_points)
                         fig2, ax2 = plt.subplots()
                         for name in buffer_names:
                             ax2.plot(time_points, df_wip[name], marker='o', label=name)
-                        ax2.set_xlabel("Time")
+                        ax2.set_xlabel("Time (days)")
                         ax2.set_ylabel("WIP")
                         ax2.set_title("Buffers WIP Over Time")
                         ax2.legend()
@@ -285,13 +291,19 @@ else:
                     buffer_names = [op["name"] for op in ops if op["name"].lower().startswith("buffer")]
                     if buffer_names:
                         import pandas as pd
-                        time_points = list(range(1, 11))
-                        wip_data = {name: np.random.randint(0, 10, size=len(time_points)) for name in buffer_names}
+                        # Timespan is horizon - warmup
+                        horizon = st.session_state.horizon_days
+                        warmup = st.session_state.warmup_days
+                        timespan = horizon - warmup
+                        time_points = list(range(1, timespan + 1))
+                        # Get max capacity for each buffer
+                        buffer_caps = {op["name"]: op["Max Capacity"] for op in ops if op["name"].lower().startswith("buffer")}
+                        wip_data = {name: np.random.randint(0, buffer_caps[name]+1, size=len(time_points)) for name in buffer_names}
                         df_wip = pd.DataFrame(wip_data, index=time_points)
                         fig2, ax2 = plt.subplots()
                         for name in buffer_names:
                             ax2.plot(time_points, df_wip[name], marker='o', label=name)
-                        ax2.set_xlabel("Time")
+                        ax2.set_xlabel("Time (days)")
                         ax2.set_ylabel("WIP")
                         ax2.set_title("Buffers WIP Over Time")
                         ax2.legend()
