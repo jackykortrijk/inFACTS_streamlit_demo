@@ -17,7 +17,8 @@
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({antialias: true});
+        const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+        renderer.setClearColor(0xffffff, 0); // transparent background
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -31,70 +32,94 @@
         const bufferMaterial = new THREE.MeshStandardMaterial({ color: 0xffbb00 });
         const sourceMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-        // Layout nodes in a line
-        const nodeMeshes = [];
+        let nodeMeshes = [];
+        let labelSprites = [];
+        let lines = [];
         const spacing = 3;
-        operations.forEach((op, i) => {
-            let mat = nodeMaterial;
-            if (op.name && op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
-            if (op.name && op.name.toLowerCase() === 'source') mat = sourceMaterial;
-            const mesh = new THREE.Mesh(nodeGeometry, mat);
-            mesh.position.x = i * spacing;
-            scene.add(mesh);
-            nodeMeshes.push(mesh);
 
-            // Add label
-            const div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.color = '#222';
-            div.style.background = 'rgba(255,255,255,0.8)';
-            div.style.padding = '2px 6px';
-            div.style.borderRadius = '4px';
-            div.style.fontSize = '14px';
-            div.innerText = op.name || '';
-            div.id = 'label-' + i;
-            document.body.appendChild(div);
-        });
-
-        // Draw lines between nodes
-        for (let i = 0; i < nodeMeshes.length - 1; i++) {
-            const material = new THREE.LineBasicMaterial({ color: 0x222222 });
-            const points = [];
-            points.push(nodeMeshes[i].position);
-            points.push(nodeMeshes[i+1].position);
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(geometry, material);
-            scene.add(line);
+        function clearScene() {
+            nodeMeshes.forEach(mesh => scene.remove(mesh));
+            nodeMeshes = [];
+            lines.forEach(line => scene.remove(line));
+            lines = [];
+            labelSprites.forEach(sprite => scene.remove(sprite));
+            labelSprites = [];
         }
 
-        camera.position.z = 8;
-        camera.position.y = 2;
-        camera.lookAt(new THREE.Vector3(operations.length * spacing / 2, 0, 0));
+        function makeTextSprite(message) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = '16px Arial';
+            const textWidth = context.measureText(message).width;
+            canvas.width = textWidth + 16;
+            canvas.height = 32;
+            context.font = '16px Arial';
+            context.fillStyle = 'rgba(255,255,255,0.9)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#222';
+            context.fillText(message, 8, 22);
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(canvas.width/32, 1, 1);
+            return sprite;
+        }
 
-        // Animate and update labels
+        function renderFlow(ops) {
+            clearScene();
+            ops.forEach((op, i) => {
+                let mat = nodeMaterial;
+                if (op.name && op.name.toLowerCase().startsWith('buffer')) mat = bufferMaterial;
+                if (op.name && op.name.toLowerCase() === 'source') mat = sourceMaterial;
+                const mesh = new THREE.Mesh(nodeGeometry, mat);
+                mesh.position.x = i * spacing;
+                scene.add(mesh);
+                nodeMeshes.push(mesh);
+
+                // Add label as sprite
+                const label = makeTextSprite(op.name || '');
+                label.position.set(mesh.position.x, mesh.position.y + 1, mesh.position.z);
+                scene.add(label);
+                labelSprites.push(label);
+            });
+            // Draw lines between nodes
+            for (let i = 0; i < nodeMeshes.length - 1; i++) {
+                const material = new THREE.LineBasicMaterial({ color: 0x222222 });
+                const points = [];
+                points.push(nodeMeshes[i].position);
+                points.push(nodeMeshes[i+1].position);
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, material);
+                scene.add(line);
+                lines.push(line);
+            }
+            // Camera setup
+            camera.position.z = Math.max(8, ops.length * 1.5);
+            camera.position.y = 2;
+            camera.lookAt(new THREE.Vector3(ops.length * spacing / 2, 0, 0));
+        }
+
+        // Initial render
+        renderFlow(operations);
+
+        // Animate
         function animate() {
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
-            // Update label positions
-            nodeMeshes.forEach((mesh, i) => {
-                const vector = mesh.position.clone();
-                vector.project(camera);
-                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-                const div = document.getElementById('label-' + i);
-                if (div) {
-                    div.style.left = `${x - div.offsetWidth/2}px`;
-                    div.style.top = `${y - div.offsetHeight/2}px`;
-                }
-            });
         }
         animate();
 
+        // Responsive resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Expose a function for dynamic update (if Streamlit reloads iframe)
+        window.updateOperationsFlow = function(newOps) {
+            renderFlow(newOps);
+        }
     </script>
 </body>
 </html>
