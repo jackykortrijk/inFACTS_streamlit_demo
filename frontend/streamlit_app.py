@@ -202,11 +202,15 @@ else:
     ext = st.session_state.selected_extension
 
     if ext == "aml":
-        tab_vc, = st.tabs(["⚙️ Visual Components"])
+        tab_vc, tab_nx = st.tabs(["⚙️ Visual Components", "⚙️ Siemens NX-MCD"])
         with tab_vc:
             st.subheader("Run Visual Components")
             if st.button("Run Visual Components"):
                 run_script_with_progress()
+        with tab_nx:
+            st.subheader("Run Siemens NX-MCD")
+            if st.button("Run Siemens NX-MCD"):
+                run_script_with_progress()       
 
 
     elif ext == "xml":
