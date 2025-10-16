@@ -5,7 +5,7 @@ import requests
 st.set_page_config(
     page_title="Simulate Now",   # ✅ 改成你想要的标题
     page_icon="⚙️",              # ✅ 可以是 emoji 或 .ico/.png 文件路径
-    layout="wide"
+    layout="centered" # "centered" 或 "wide"
 )
 
 # 隐藏 Streamlit 默认的菜单和页脚
